@@ -51,13 +51,7 @@ func Encrypt(g kyber.Group, fn func() hash.Hash, public kyber.Point, msg []byte)
 		return nil, errors.New("not enough bits from the shared secret")
 	}
 
-	// even though optional for this mode of ECIES, it _should_ not hurt if we
-	// add it.
-	//nonce := make([]byte, 12)
-	//if _, err := io.ReadFull(rand.Reader, nonce); err != nil {
-	//	return nil, err
-	//}
-	// TODO: READ FROM LAVARAND
+	// Reads from lavarand
 	nonce, err := lavarand.GetRandom(12)
 	if err != nil {
 		return nil, err

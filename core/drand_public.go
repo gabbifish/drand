@@ -125,8 +125,7 @@ func (d *Drand) Private(c context.Context, priv *drand.PrivateRandRequest) (*dra
 	if err := clientKey.UnmarshalBinary(msg); err != nil {
 		return nil, errors.New("invalid client key")
 	}
-	//var randomness [32]byte
-	// TODO: READ FROM LAVARAND
+	// Reads from lavarand
 	randomness, err := lavarand.GetRandom(32)
 	if err != nil {
 		return nil, err
