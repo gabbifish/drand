@@ -3,17 +3,15 @@ package ecies
 import (
 	"crypto/aes"
 	"crypto/cipher"
-	"crypto/rand"
 	"crypto/sha256"
 	"errors"
-	"hash"
-	"io"
-
+	"github.com/dedis/drand/lavarand"
 	"github.com/dedis/drand/protobuf/crypto"
 	"github.com/dedis/drand/protobuf/drand"
 	"github.com/dedis/kyber"
 	"github.com/dedis/kyber/util/random"
 	"golang.org/x/crypto/hkdf"
+	"hash"
 )
 
 // This file provides an implementation of the ECIES scheme.
@@ -55,8 +53,13 @@ func Encrypt(g kyber.Group, fn func() hash.Hash, public kyber.Point, msg []byte)
 
 	// even though optional for this mode of ECIES, it _should_ not hurt if we
 	// add it.
-	nonce := make([]byte, 12)
-	if _, err := io.ReadFull(rand.Reader, nonce); err != nil {
+	//nonce := make([]byte, 12)
+	//if _, err := io.ReadFull(rand.Reader, nonce); err != nil {
+	//	return nil, err
+	//}
+	// TODO: READ FROM LAVARAND
+	nonce, err := lavarand.GetRandom(12)
+	if err != nil {
 		return nil, err
 	}
 
@@ -99,13 +102,6 @@ func Decrypt(g kyber.Group, fn func() hash.Hash, priv kyber.Scalar, o *drand.ECI
 		return nil, err
 	} else if n != byteLength {
 		return nil, errors.New("not enough bits from the shared secret")
-	}
-
-	// even though optional for this mode of ECIES, it _should_ not hurt if we
-	// add it.
-	nonce := make([]byte, 12)
-	if _, err := io.ReadFull(rand.Reader, nonce); err != nil {
-		return nil, err
 	}
 
 	block, err := aes.NewCipher(key)

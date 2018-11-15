@@ -5,6 +5,7 @@ import (
 	"crypto/rand"
 	"errors"
 	"fmt"
+	"github.com/dedis/drand/lavarand"
 
 	"github.com/dedis/drand/beacon"
 	"github.com/dedis/drand/ecies"
@@ -124,7 +125,12 @@ func (d *Drand) Private(c context.Context, priv *drand.PrivateRandRequest) (*dra
 	if err := clientKey.UnmarshalBinary(msg); err != nil {
 		return nil, errors.New("invalid client key")
 	}
-	var randomness [32]byte
+	//var randomness [32]byte
+	// TODO: READ FROM LAVARAND
+	randomness, err := lavarand.GetRandom(32)
+	if err != nil {
+		return nil, err
+	}
 	if n, err := rand.Read(randomness[:]); err != nil {
 		return nil, errors.New("error gathering randomness")
 	} else if n != 32 {
