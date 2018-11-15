@@ -42,7 +42,8 @@ func (t *testRandomnessServer) Private(context.Context, *drand.PrivateRandReques
 func TestListener(t *testing.T) {
 	addr1 := "127.0.0.1:4000"
 	peer1 := &testPeer{addr1, false}
-	//addr2 := "127.0.0.1:4001"
+	addr2 := "127.0.0.1:4100"
+	peer2 := &testPeer{addr2, false}
 	randServer := &testRandomnessServer{42}
 
 	lis1 := NewTCPGrpcListener(addr1, &DefaultService{R: randServer})
@@ -57,7 +58,7 @@ func TestListener(t *testing.T) {
 	require.Equal(t, expected.GetRound(), resp.GetRound())
 
 	rest := NewRestClient()
-	resp, err = rest.Public(peer1, &drand.PublicRandRequest{})
+	resp, err = rest.Public(peer2, &drand.PublicRandRequest{})
 	require.NoError(t, err)
 	expected = &drand.PublicRandResponse{Round: randServer.round}
 	require.Equal(t, expected.GetRound(), resp.GetRound())
