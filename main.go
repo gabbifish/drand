@@ -19,6 +19,8 @@ import (
 	"github.com/dedis/drand/core"
 	"github.com/dedis/drand/fs"
 	"github.com/dedis/drand/key"
+	"github.com/dedis/drand/net"
+	"github.com/dedis/drand/protobuf/drand"
 	"github.com/nikkolasg/slog"
 	"github.com/urfave/cli"
 )
@@ -34,7 +36,7 @@ const dpublic = "dist_key.public"
 const defaultPort = "8080"
 
 func banner() {
-	fmt.Printf("drand vtest-%s by nikkolasg @ DEDIS\n", version)
+	fmt.Printf("drand %v by nikkolasg\n", version)
 	s := "WARNING: this software has NOT received a full audit and must be \n" +
 		"used with caution and probably NOT in a production environment.\n"
 	fmt.Printf(s)
@@ -145,7 +147,7 @@ func main() {
 			Usage: "Stop the drand daemon.\n",
 			Action: func(c *cli.Context) error {
 				banner()
-				return stopCmd(c)
+				return stopDaemon(c)
 			},
 		},
 		cli.Command{
@@ -187,6 +189,15 @@ func main() {
 			Action: func(c *cli.Context) error {
 				banner()
 				return groupCmd(c)
+			},
+		},
+		cli.Command{
+			Name:  "check-group",
+			Usage: "Check node in the group for accessibility over the gRPC communication",
+			Flags: toArray(certsDirFlag),
+			Action: func(c *cli.Context) error {
+				banner()
+				return checkGroup(c)
 			},
 		},
 		{
@@ -374,18 +385,6 @@ func testWindows(c *cli.Context) {
 	}
 }
 
-func stopCmd(c *cli.Context) error {
-	conf := contextToConfig(c)
-	fs := key.NewFileStore(conf.ConfigFolder())
-	var drand *core.Drand
-	drand, err := core.LoadDrand(fs, conf)
-	if err != nil {
-		slog.Fatal(err)
-	}
-	drand.Stop()
-	return nil
-}
-
 func keygenCmd(c *cli.Context) error {
 	args := c.Args()
 	if !args.Present() {
@@ -462,6 +461,7 @@ func groupCmd(c *cli.Context) error {
 	if c.IsSet("group") {
 		// merge with given group
 		groupPath := c.String("group")
+		testEmptyGroup(groupPath)
 		oldG := &key.Group{}
 		if err := key.Load(groupPath, oldG); err != nil {
 			slog.Fatal(err)
@@ -490,14 +490,38 @@ func groupCmd(c *cli.Context) error {
 	return nil
 }
 
+func checkGroup(c *cli.Context) error {
+	if !c.Args().Present() {
+		slog.Fatal("drand: check-group expects a group argument")
+	}
+	conf := contextToConfig(c)
+	testEmptyGroup(c.Args().First())
+	group := new(key.Group)
+	if err := key.Load(c.Args().First(), group); err != nil {
+		slog.Fatal("drand: loading group failed")
+	}
+	for _, id := range group.Nodes {
+		client := net.NewGrpcClientFromCertManager(conf.Certs())
+		_, err := client.Home(id, &drand.HomeRequest{})
+		if err != nil {
+			slog.Fatalf("drand: error checking id %s", id.Address())
+		}
+		slog.Printf("drand: id %s answers correctly", id.Address())
+	}
+	slog.Print("all good")
+	return nil
+}
+
 func toArray(flags ...cli.Flag) []cli.Flag {
 	return flags
 }
 
 func getGroup(c *cli.Context) *key.Group {
 	g := &key.Group{}
-	if err := key.Load(c.Args().First(), g); err != nil {
-		slog.Fatalf("drand: error loading group argument: %s", err)
+	groupPath := c.Args().First()
+	testEmptyGroup(groupPath)
+	if err := key.Load(groupPath, g); err != nil {
+		slog.Fatalf("drand: error loading group file: %s", err)
 	}
 	slog.Infof("group file loaded with %d participants", g.Len())
 	return g
@@ -572,4 +596,19 @@ func getNodes(c *cli.Context) []*key.Identity {
 		slog.Fatalf("drand: no nodes specified with --nodes are in the group file")
 	}
 	return ids
+}
+
+func testEmptyGroup(path string) {
+	file, err := os.Open(path)
+	defer file.Close()
+	if err != nil {
+		slog.Fatal(err)
+	}
+	fi, err := file.Stat()
+	if err != nil {
+		slog.Fatal(err)
+	}
+	if fi.Size() == 0 {
+		slog.Fatal("drand: given group file is empty")
+	}
 }

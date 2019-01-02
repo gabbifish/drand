@@ -37,7 +37,7 @@ IMG="dedis/drand:latest"
 DRAND_PATH="src/github.com/dedis/drand"
 DOCKERFILE="$GOPATH/$DRAND_PATH/Dockerfile"
 NET="drand"
-SUBNET="192.168.0."
+SUBNET="192.168.215."
 PORT="80"
 GOROOT=$(go env GOROOT)
 # go run $GOROOT/src/crypto/tls/generate_cert.go --rsa-bits 1024 --host 127.0.0.1,::1,localhost --ca --start-date "Jan 1 00:00:00 1970" --duration=1000000h
@@ -66,7 +66,7 @@ fi
 ## build the test travis image
 function build() {
     echo "[+] Building docker image $IMG"
-    docker build -t "$IMG" .  > /dev/null
+    docker build -t "$IMG" .  #> /dev/null
     img="byrnedo/alpine-curl"
     ## XXX make curl work without the "-k" option
     docker pull $img > /dev/null
@@ -179,6 +179,10 @@ function run() {
 
         if [ "$i" -eq 1 ]; then
             docker exec -it $name drand share --leader "$dockerGroupFile" > /dev/null
+            # check the group
+            docker exec -it $name drand check-group "$dockerGroupFile" \
+            --certs-dir /certs > /dev/null
+            checkSuccess $? "[-] Group checking has failed. Stopping now."
         else
             docker exec -d $name drand share "$dockerGroupFile" > /dev/null
         fi
@@ -296,8 +300,6 @@ function pingNode() {
         fi
         sleep 0.2
     done
-
-
 }
 
 function cleanup() {
@@ -344,7 +346,7 @@ function fetchTest() {
     docker run --rm --net $NET --ip "${SUBNET}12" -v "$serverCertVol" \
                 $img -s -k --cacert "$serverCertDocker" \
                 -H "Content-type: application/json" \
-                "https://${addresses[0]}/public" | python -m json.tool
+                "https://${addresses[0]}/api/public" | python -m json.tool
 
     checkSuccess $? "verify REST API for public randomness"
     echo "---------------------------------------------"
@@ -354,7 +356,7 @@ function fetchTest() {
     docker run --rm --net $NET --ip "${SUBNET}12" -v "$serverCertVol" \
                 $img -s -k --cacert "$serverCertDocker" \
                 -H "Content-type: application/json" \
-                "https://${addresses[0]}/info/dist_key" | python -m json.tool
+                "https://${addresses[0]}/api/info/distkey" | python -m json.tool
     checkSuccess $? "verify REST API for getting distributed key"
     echo "---------------------------------------------"
 }

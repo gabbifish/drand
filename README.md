@@ -371,7 +371,7 @@ produced by this drand instance. The **message signed** is therefore the
 concatenation of the round number treated as a `uint64` and the previous
 randomness.The gid is an indicator of the group this point belongs to. At the
 moment, we are only using BLS signatures on the BN256 curves and the signature
-is made over G1. 
+is made over G1.
 
 #### Fetching Private Randomness
 
@@ -400,12 +400,12 @@ do so with curl.
 
 To get the distributed key, you can use:
 ```bash
-curl <address>/info/dist_key
+curl <address>/api/info/distkey
 ```
 
 Similarly, to get the latest round of randomness from the drand beacon, you can use
 ```bash
-curl <address>/public
+curl <address>/api/public
 ```
 
 **All the REST endpoints are specified in the `protobuf/drand/client.proto` file.**
@@ -470,13 +470,23 @@ Drand relies on the following cryptographic constructions:
 For our previous work on public randomness, see our academical paper
 [Scalable Bias-Resistant Distributed Randomness](https://eprint.iacr.org/2016/1067.pdf).
 
+## DrandJS
+
+To facilitate the use of drand's randomness in JavaScript-based applications, we provide
+[DrandJS](https://github.com/PizzaWhisperer/drandjs). The main method `fetchAndVerify`
+of this JavaScript library fetches from a drand node the latest random beacon generated and then
+verifies it against the distributed key.
+For more details on the procedure and instructions on how to use it,
+refer to the [readme](https://github.com/PizzaWhisperer/drandjs/blob/master/README.md).
+As it is compiled from Go, DrandJS stays experimental and is used as proof-of-concept.
+Our longterm objective is to have a library written in pure JavaScript.
+
 ## What's Next?
 
 Although being already functional, drand is still at an early development stage
 and there is a lot left to be done. Feel free to submit feature requests or,
 even better, pull requests. ;)
 
-+ flexible JS library
 + Support DKG timeouts
 + Add more unit tests
 + Reduce size of Docker
