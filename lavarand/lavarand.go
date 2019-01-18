@@ -7,7 +7,7 @@ import (
 )
 
 func GetRandom(bytes uint32) ([]byte, error) {
-	url := fmt.Sprintf("https://lavarand2.cfdata.org/entropy?bytes=%d", bytes)
+	url := fmt.Sprintf("https://lavarand.ing.pdx-a.k8s.cfplat.com/entropy?bytes=%d", bytes)
 	resp, errGetRandomness := http.Get(url)
 	if errGetRandomness != nil {
 		return nil, errGetRandomness
