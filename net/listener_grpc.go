@@ -29,9 +29,9 @@ type grpcInsecureListener struct {
 	httpLis    net.Listener
 }
 
-// getHttpAddress retrieves a unique port for an http request handler. This port is 100 ports above the port
+// GetHTTPAddressFromGRPCAddress retrieves a unique port for an http request handler. This port is 100 ports above the port
 // used for the gRPC handler.
-func getHttpAddress(addrGrpc string) string {
+func GetHTTPAddressFromGRPCAddress(addrGrpc string) string {
 	// Gets the last value seperated by ":". This is to avoid getting tripped up by IPv6 addresses.
 	addrComponents := strings.Split(addrGrpc, ":")
 	portGrpc := addrComponents[len(addrComponents)-1]
@@ -54,7 +54,7 @@ func NewTCPGrpcListener(addrGRPC string, s Service, opts ...grpc.ServerOption) L
 	}
 
 	// Setup listener for http requests; this is run on one port number above the gRPC handler.
-	addrHttp := getHttpAddress(addrGRPC)
+	addrHttp := GetHTTPAddressFromGRPCAddress(addrGRPC)
 	httpLis, err := net.Listen("tcp", addrHttp)
 	if err != nil {
 		panic("tcp listener: " + err.Error())

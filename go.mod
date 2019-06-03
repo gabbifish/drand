@@ -14,7 +14,7 @@ require (
 	github.com/kabukky/httpscerts v0.0.0-20150320125433-617593d7dcb3
 	github.com/nikkolasg/hexjson v0.0.0-20181101101858-78e39397e00c
 	github.com/nikkolasg/slog v0.0.0-20170921200349-3c8d441d7a1e
-	github.com/soheilhy/cmux v0.1.4
+	github.com/soheilhy/cmux v0.1.4 // indirect
 	github.com/stretchr/testify v1.3.0
 	github.com/urfave/cli v1.20.0
 	go.dedis.ch/kyber/v3 v3.0.3-0.20190501101437-0324e4ea86f1

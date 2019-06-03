@@ -488,7 +488,14 @@ func TestDrandPublicGroup(t *testing.T) {
 			require.Equal(t, gtoml.Nodes[i].Key, n2.Key)
 			require.Equal(t, n.TLS, n2.TLS)
 		}
-		restGroup, err := rest.Group(d.priv.Public, &drand.GroupRequest{})
+		// CLOUDFLARE CHANGE: NEED TO ACCESS VIA NEW HTTP PORT.
+		// Overwrite address in Public struct.
+		modifiedPublic := &key.Identity{
+			Key: d.priv.Public.Key,
+			TLS: d.priv.Public.TLS,
+			Addr: net.GetHTTPAddressFromGRPCAddress(d.priv.Public.Addr),
+		}
+		restGroup, err := rest.Group(modifiedPublic, &drand.GroupRequest{})
 		require.NoError(t, err)
 		require.Equal(t, groupResp, restGroup)
 	}
