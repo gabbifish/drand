@@ -1,0 +1,141 @@
+apiVersion: v1
+items:
+- apiVersion: v1
+  data:
+    group.toml: |
+      # Production TOML!
+
+      Threshold = 5
+      Period = "1m0s"
+
+      [[Nodes]]
+        Address = "dedis.nella.org:8890"
+        Key = "0109436e20fd0697df8b8998e3466a3840bcd101c6404312b72400e5aa6a03d4927c692d69edd003e362321887500438f0c70a48507ba5f3e35555abcd7a641f735bcf1d7a1ff2833366856ac848b3a713a127776b700efab0fc6bc206b19aed3e1170fbc116d572e76dea2564355e5f8c0ce07336fcc60c3c5fad964537b0f33b"
+        TLS = true
+
+      [[Nodes]]
+        Address = "drand.cloudflare.com:443"
+        Key = "01519feff5317ebd9625fc18938813ccb834435688c5d86d8b1e6a3a63eff2343a8b4e2b0ef34895cffb14f19b3f9a5e91abe924e995ba8af1b47ff4992660b94c4edd111f62177e172c20944d22892f6826547c8f7deba6550f2bb1698d75f7d21d18030dea2b77421f1f9348caaff97a09b47dea5a7fd71ef7a9906ae08dbad0"
+        TLS = true
+
+      [[Nodes]]
+        Address = "drand.dedis.ch:7890"
+        Key = "010c6c79879f656647ffffa0b32d5e6b886b9add33d43061a15393ab9e9a7e2aa731ee0dc5e5a8175d09c2260d8f14b44c815270cefda003c8e09cf43c4558426d7e1b66279f0b79ab257112958dfc5233a3c22f4b1f15c00535ee2e37220bac6f2ba3df9968e65c21c815740f35216dd4848249f097e278a1964b430ea24a0d99"
+        TLS = true
+
+      [[Nodes]]
+        Address = "drand.kudelskisecurity.com:443"
+        Key = "0162bfc16795ac209a92bf62f4f5c3c562fac8e9731fa93d41232d332784a61ed96c4b15dd6b34e3b6cd6a726b7e73f8be48a5eead19be6f7d4a03cb532f9af04970dad53d568f63f4508debdc156b01d9011cebb5d9ecdebb3425eac9cfdae5e72ff6b3e82da0c782c3ca934bcc4fbe470efbf7a26f9b479ba66b0c72998264a5"
+        TLS = true
+
+      [[Nodes]]
+        Address = "drand.lbarman.ch:443"
+        Key = "013024d53a2a47497ce442d8ff2b3e4b2e383b5e39137db1a2c3ffdc93bc5607211d278db150d173cee2277e9715a4eae2f5be9c3e0583463282e745d866b979ce2714750444e883c6a0956297ad5081d8183400b9545bc956777f523affc7139c1168e21b62a53256aa375fdd13b5c7b23c29a07bd2181c26990e512b36714b13"
+        TLS = true
+
+      [[Nodes]]
+        Address = "drand.nikkolasg.xyz:8888"
+        Key = "017f2b29f9f6403458eb3b332af3f9aed22fc83854c3c4cc7dbb3b07b85375714078f7487ac2f74f57f7b8c2f516a765fb9f2451d6a3c28f3f720cc011ded6c55366b24027fa121a4e65964c602ccc4b9885c2f1940058545107502bdd6d85344f7999d00b3e5af36a2b81cc3f0f439aeb964a4da84d20e32d9201c98a339696eb"
+        TLS = true
+
+      [[Nodes]]
+        Address = "drand.zerobyte.io:6000"
+        Key = "0164e32a70c0f9030b5bfd6d928ae7e2d02bd867f9e22a278fad2fcece9d80c95d16c66d3c05f1c042a520d1aeb6bd1f0ba1cfddade96125a4f0920770f559563020845a682e67eeb5d7d6b7151f10fd3d8d41d2927b21548d158cdfde9a9ddd515b41baf33e680a924cca08049e04dcf408cce24e474c05cf508935e1d88b40d5"
+        TLS = true
+
+      [[Nodes]]
+        Address = "random.uchile.cl:8080"
+        Key = "0126cdddc0b348be0ef3b3ec7fb589b6c12d4bc6a7a0a04e1bb4467e123863e2e949b37b30e0aeee26684c4a472e993fa15ef7e987703e7a7f8529428a6865ac1331399d57ec8f30bc5e69b33d6b331e1746610306e5495e7e7c6dfaeb17f9046b32110dd64e4d19fcf567a3f0fc26c6ec239d2cce1546819fea6b4d7a734d8f0b"
+        TLS = true
+  kind: ConfigMap
+  metadata:
+    creationTimestamp: "2018-12-03T17:55:04Z"
+    name: group-toml
+    namespace: drand
+    resourceVersion: "277934197"
+    selfLink: /api/v1/namespaces/drand/configmaps/group-toml
+    uid: 900363dc-f724-11e8-89fd-54ab3a16deea
+- apiVersion: v1
+  data:
+    group.toml: |2+
+
+      Threshold = 3
+      Period = "1m0s"
+
+      [[Nodes]]
+        Address = "127.0.0.1:8002"
+        Key = "6e865145811183cbc4e3a521d60ea91bc71cf56d49fb1d4ea17f6bb973c0a94a3c318afd67dca848220c245b2cec16a22b82f180d46ea647a5ff3da40b44f07e4df04d4a3ebd69fbaa66baec720f0944d1945418eedf6c2221f79797feb11a1513b4b9df6bedb79306b375cce88024461853ebdd30b47fc95c1bd33cb3a6638f"
+        TLS = false
+
+      [[Nodes]]
+        Address = "127.0.0.1:8004"
+        Key = "093ff977ba0ed7abc7114bda476551ee944bdf38f7209d8fb4172b908d30bab63c50d547c958e4ed36bdc4621d409bc195715352f2b1cb3ff2824870f2ede4c22e100aa05b21002568fea13b842c1fb0522924bcc308e2609feede4f79d7cc9054e31366f1136fb07ac266e22a6bff909a29737f503ec076c4bd4d6834a95bc6"
+        TLS = false
+
+      [[Nodes]]
+        Address = "drand.cloudflare.com:443"
+        Key = "09199b1447905ea97efa17d3505edb0ecf43eba28f0fab656d537cb78f958eb504583db0c7b95bff5a3c1dc329882e2335d828cd20213d9c82239bbdc0aa9c080e1a8fcb732a1d87209b1f432f928ed9006da51453d9080e20d06144e1d2db02418d225753a18a7b9f5c31c5050239ebb2ec2df2f9884f36fc12471681d67ab4"
+        TLS = true
+
+      [[Nodes]]
+        Address = "127.0.0.1:8006"
+        Key = "2ad5cb11b8a3d4bf34316591af4ec91aa1440ee85ffe5ff5bf66b6ec62d1e5b62f0ac31e4f73505e8aaff0f8f692a8cf848b7061d7972ed273abb038c9b2042f71576e0c9485d58c80acc3f1be1bc9b7f622d849cd2792161a97614b1137e7591fda1a78c659dbfb54a9c338d64f70a0eec71e1fbdcfe9c66ae5c058db09d72c"
+        TLS = false
+
+
+  kind: ConfigMap
+  metadata:
+    creationTimestamp: "2018-12-03T17:53:18Z"
+    name: group-toml-test
+    namespace: drand
+    resourceVersion: "277933054"
+    selfLink: /api/v1/namespaces/drand/configmaps/group-toml-test
+    uid: 50b9da64-f724-11e8-9718-a81e84b285c5
+- apiVersion: v1
+  data:
+    already_running_nodes.toml: |2+
+
+
+      Threshold = 4
+      Period = "1m0s"
+
+      [[Nodes]]
+        Address = "dedis.nella.org:8890"
+        Key = "0109436e20fd0697df8b8998e3466a3840bcd101c6404312b72400e5aa6a03d4927c692d69edd003e362321887500438f0c70a48507ba5f3e35555abcd7a641f735bcf1d7a1ff2833366856ac848b3a713a127776b700efab0fc6bc206b19aed3e1170fbc116d572e76dea2564355e5f8c0ce07336fcc60c3c5fad964537b0f33b"
+        TLS = true
+
+      [[Nodes]]
+        Address = "drand.dedis.ch:7890"
+        Key = "010c6c79879f656647ffffa0b32d5e6b886b9add33d43061a15393ab9e9a7e2aa731ee0dc5e5a8175d09c2260d8f14b44c815270cefda003c8e09cf43c4558426d7e1b66279f0b79ab257112958dfc5233a3c22f4b1f15c00535ee2e37220bac6f2ba3df9968e65c21c815740f35216dd4848249f097e278a1964b430ea24a0d99"
+        TLS = true
+
+      [[Nodes]]
+        Address = "drand.lbarman.ch:443"
+        Key = "013024d53a2a47497ce442d8ff2b3e4b2e383b5e39137db1a2c3ffdc93bc5607211d278db150d173cee2277e9715a4eae2f5be9c3e0583463282e745d866b979ce2714750444e883c6a0956297ad5081d8183400b9545bc956777f523affc7139c1168e21b62a53256aa375fdd13b5c7b23c29a07bd2181c26990e512b36714b13"
+        TLS = true
+
+      [[Nodes]]
+        Address = "drand.nikkolasg.xyz:8888"
+        Key = "017f2b29f9f6403458eb3b332af3f9aed22fc83854c3c4cc7dbb3b07b85375714078f7487ac2f74f57f7b8c2f516a765fb9f2451d6a3c28f3f720cc011ded6c55366b24027fa121a4e65964c602ccc4b9885c2f1940058545107502bdd6d85344f7999d00b3e5af36a2b81cc3f0f439aeb964a4da84d20e32d9201c98a339696eb"
+        TLS = true
+
+      [[Nodes]]
+        Address = "drand.zerobyte.io:6000"
+        Key = "0164e32a70c0f9030b5bfd6d928ae7e2d02bd867f9e22a278fad2fcece9d80c95d16c66d3c05f1c042a520d1aeb6bd1f0ba1cfddade96125a4f0920770f559563020845a682e67eeb5d7d6b7151f10fd3d8d41d2927b21548d158cdfde9a9ddd515b41baf33e680a924cca08049e04dcf408cce24e474c05cf508935e1d88b40d5"
+        TLS = true
+
+      [PublicKey]
+        Coefficients = ["011d0a21c0d192877cf1994da7e5d2712a87bc92fffad17af2ce02b22f02ba08e84f84fd9ccdb14e6f92cce5a66a1047b6d66867b79cafb32949f6b1e8b40e61d832bbdec7faf1be920b842003e6dbd9a75c877f8cf93e4ccaf91a58cb34176d8b688cb14a17e28b9c1c1748af14d005bc5231180fed592a4143195b8010a1733e", "0149a5a932beb2285c170b72f01073b0d4a408a61180efe8d2633a30eb7a323a5e390d0256f1297a9b00cf1994faa8d1c5bae4ce68012d3c625f0336e95a38989034dd5268dcea5d6f0ad97bc94d82649dc4789c786f42d1f30536cabf925a30943fa13d40d085e6eac64ff900bae065dfd924cd2b94dcc8d17cdc9c803bd934da", "0182f60345e72a7a033ca41d6816c1f1751ec6991c876eeceb3600822e4337cac2494c92b47f70ffa311191334ff4dbf56ff9a2528d6637286bba10b2b7a318c3c5b80cf737638f42683c245947313ff8b008d5d260ea370be1727633cd19718295e2b928621dbbb367f4b18840099bf922c5992be56a9733ae664b43c7a8f59e7"]
+
+  kind: ConfigMap
+  metadata:
+    creationTimestamp: "2019-01-02T20:17:30Z"
+    name: preexisting-toml
+    namespace: drand
+    resourceVersion: "300859587"
+    selfLink: /api/v1/namespaces/drand/configmaps/preexisting-toml
+    uid: 6eaca702-0ecb-11e9-aae8-a81e846012b0
+kind: List
+metadata:
+  resourceVersion: ""
+  selfLink: ""

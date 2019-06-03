@@ -1,0 +1,5 @@
+[default]
+host_base = s3.cfdata.org
+host_bucket = %(bucket)s.s3.cfdata.org
+use_https = true
+signature_v2 = true

@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: drand
+  namespace: drand
+spec:
+  serviceName: drand-service # This Headless Service keeps the network identifiers stable.
+  selector:
+    matchLabels:
+      app: drand
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: drand
+    spec:
+      containers:
+      #  The exposed container (the one that will be connected to other drand nodes)
+      - name: drand
+        image: docker-registry.cfdata.org/u/gabbi/drand:2018.10.6
+        imagePullPolicy: Always
+        command: ["/bin/sh","-c"]
+        args: ["chmod 740 /prepare.sh /end.sh && /prepare.sh drand 8000 8888 2 9000"]
+        ports:
+        - containerPort: 8000
+          name: grpc
+        - containerPort: 8100
+          name: http
+        - containerPort: 9000
+          name: http-metrics-d
+        volumeMounts:
+        - name: drand-id
+          mountPath: "/root/.drand/key-volume/"
+        - name: group-toml
+          mountPath: "/root/.drand/group-volume/"
+        - name: preexisting-toml
+          mountPath: "/root/.drand/preexisting-volume/"
+        env:
+          - name: AWS_ACCESS_KEY
+            valueFrom:
+              secretKeyRef:
+                name: s3-secret
+                key: access_key
+          - name: AWS_SECRET_KEY
+            valueFrom:
+              secretKeyRef:
+                name: s3-secret
+                key: secret_key
+        lifecycle:
+          preStop:
+            exec:
+              command: ["/end.sh", "drand"]
+      volumes:
+      - name: drand-id
+        secret:
+          secretName: drand-id
+          items:
+          - key: drand_id.private
+            path: drand_id.private
+          - key: drand_id.public
+            path: drand_id.public
+      - name: group-toml
+        configMap:
+          name: group-toml
+      - name: preexisting-toml
+        configMap:
+          name: preexisting-toml

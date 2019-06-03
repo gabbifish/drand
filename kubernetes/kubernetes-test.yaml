@@ -1,0 +1,178 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: drand
+  namespace: drand
+spec:
+  serviceName: drand-service # This Headless Service keeps the network identifiers stable.
+  selector:
+    matchLabels:
+      app: drand
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: drand
+    spec:
+      containers:
+      # Testing containers--ensures beacon is properly set up among a group of 3 drand nodes.
+      - name: drand-fizz
+        image: docker-registry.cfdata.org/u/gabbi/drand:2018.5.1-test
+        imagePullPolicy: Always
+        command: ["/bin/sh","-c"]
+        args: ["chmod 740 /prepare.sh /end.sh && /prepare.sh drand-fizz 8002 8889 1 9002"]
+        ports:
+        - containerPort: 8002
+          name: grpc-fizz
+        - containerPort: 8102
+          name: http-fizz
+        volumeMounts:
+        - name: drand-id-fizz
+          mountPath: "/root/.drand/key-volume/"
+        - name: group-toml
+          mountPath: "/root/.drand/group-volume/"
+        env:
+          - name: AWS_ACCESS_KEY
+            valueFrom:
+              secretKeyRef:
+                name: s3-secret
+                key: access_key
+          - name: AWS_SECRET_KEY
+            valueFrom:
+              secretKeyRef:
+                name: s3-secret
+                key: secret_key
+        lifecycle:
+          preStop:
+            exec:
+              command: ["/end.sh", "drand-fizz"]
+      - name: drand-buzz
+        image: docker-registry.cfdata.org/u/gabbi/drand:2018.5.1-test
+        imagePullPolicy: Always
+        command: ["/bin/sh","-c"]
+        args: ["chmod 740 /prepare.sh /end.sh && /prepare.sh drand-buzz 8004 8890 1 9004"]
+        ports:
+        - containerPort: 8004
+          name: grpc-buzz
+        - containerPort: 8104
+          name: http-buzz
+        volumeMounts:
+        - name: drand-id-buzz
+          mountPath: "/root/.drand/key-volume/"
+        - name: group-toml
+          mountPath: "/root/.drand/group-volume/"
+        env:
+          - name: AWS_ACCESS_KEY
+            valueFrom:
+              secretKeyRef:
+                name: s3-secret
+                key: access_key
+          - name: AWS_SECRET_KEY
+            valueFrom:
+              secretKeyRef:
+                name: s3-secret
+                key: secret_key
+        lifecycle:
+          preStop:
+            exec:
+              command: ["/end.sh", "drand-buzz"]
+      - name: drand-razz
+        image: docker-registry.cfdata.org/u/gabbi/drand:2018.5.1-test
+        imagePullPolicy: Always
+        command: ["/bin/sh","-c"]
+        args: ["chmod 740 /prepare.sh /end.sh && /prepare.sh drand-razz 8006 8891 1 9006"]
+        ports:
+        - containerPort: 8006
+          name: grpc-razz
+        - containerPort: 8106
+          name: http-razz
+        volumeMounts:
+        - name: drand-id-razz
+          mountPath: "/root/.drand/key-volume/"
+        - name: group-toml
+          mountPath: "/root/.drand/group-volume/"
+        env:
+          - name: AWS_ACCESS_KEY
+            valueFrom:
+              secretKeyRef:
+                name: s3-secret
+                key: access_key
+          - name: AWS_SECRET_KEY
+            valueFrom:
+              secretKeyRef:
+                name: s3-secret
+                key: secret_key
+        lifecycle:
+          preStop:
+            exec:
+              command: ["/end.sh", "drand-razz"]
+      #  The exposed container (the one that will be connected to other drand nodes)
+      - name: drand-test
+        image: docker-registry.cfdata.org/u/gabbi/drand:2018.5.1-test
+        imagePullPolicy: Always
+        command: ["/bin/sh","-c"]
+        # This container sleeps a bit while the other drand nodes get set up. Or else leader will return with nonzero exit status.
+        args: ["chmod 740 /prepare.sh /end.sh && /prepare.sh drand-test 8000 8888 0 9000"]
+        ports:
+        - containerPort: 8000
+          name: grpc
+        - containerPort: 8100
+          name: http
+        - containerPort: 9000
+          name: http-metrics-d
+        volumeMounts:
+        - name: drand-id-test
+          mountPath: "/root/.drand/key-volume/"
+        - name: group-toml
+          mountPath: "/root/.drand/group-volume/"
+        env:
+          - name: AWS_ACCESS_KEY
+            valueFrom:
+              secretKeyRef:
+                name: s3-secret
+                key: access_key
+          - name: AWS_SECRET_KEY
+            valueFrom:
+              secretKeyRef:
+                name: s3-secret
+                key: secret_key
+        lifecycle:
+          preStop:
+            exec:
+              command: ["/end.sh", "drand-test"]
+      volumes:
+      - name: drand-id-test
+        secret:
+          secretName: drand-id-test
+          items:
+          - key: drand_id.private
+            path: drand_id.private
+          - key: drand_id.public
+            path: drand_id.public
+      - name: drand-id-fizz
+        secret:
+          secretName: drand-id-fizz
+          items:
+          - key: drand_id.private
+            path: drand_id.private
+          - key: drand_id.public
+            path: drand_id.public
+      - name: drand-id-buzz
+        secret:
+          secretName: drand-id-buzz
+          items:
+          - key: drand_id.private
+            path: drand_id.private
+          - key: drand_id.public
+            path: drand_id.public
+      - name: drand-id-razz
+        secret:
+          secretName: drand-id-razz
+          items:
+          - key: drand_id.private
+            path: drand_id.private
+          - key: drand_id.public
+            path: drand_id.public
+      - name: group-toml
+        configMap:
+          name: group-toml-test
