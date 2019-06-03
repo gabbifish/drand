@@ -54,7 +54,7 @@ func Encrypt(g kyber.Group, fn func() hash.Hash, public kyber.Point, msg []byte)
 
 	// even though optional for this mode of ECIES, it _should_ not hurt if we
 	// add it.
-	nonce, err := entropy.GetRandom(nil, 12)
+	nonce, err := entropy.GetRandom(&entropy.Lavarand{}, 12)
 	if err != nil {
 		return nil, err
 	}
