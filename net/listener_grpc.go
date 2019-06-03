@@ -5,13 +5,13 @@ import (
 	"crypto/tls"
 	"net"
 	"net/http"
+	"strconv"
 	"strings"
 
 	"github.com/dedis/drand/protobuf/dkg"
 	"github.com/dedis/drand/protobuf/drand"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/nikkolasg/slog"
-	"github.com/soheilhy/cmux"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 )
@@ -25,20 +25,40 @@ type grpcInsecureListener struct {
 	Service
 	grpcServer *grpc.Server
 	restServer *http.Server
-	mux        cmux.CMux
-	lis        net.Listener
+	grpcLis    net.Listener
+	httpLis    net.Listener
+}
+
+// getHttpAddress retrieves a unique port for an http request handler. This port is 100 ports above the port
+// used for the gRPC handler.
+func getHttpAddress(addrGrpc string) string {
+	// Gets the last value seperated by ":". This is to avoid getting tripped up by IPv6 addresses.
+	addrComponents := strings.Split(addrGrpc, ":")
+	portGrpc := addrComponents[len(addrComponents)-1]
+	portHttpInt, err := strconv.ParseUint(portGrpc, 10, 16)
+	if err != nil {
+		panic("Error when converting gRPC port to uint16")
+	}
+	portHttp := strconv.FormatUint(portHttpInt+100, 10)
+	addrComponents[len(addrComponents)-1] = portHttp
+	return strings.Join(addrComponents, ":")
 }
 
 // NewTCPGrpcListener returns a gRPC listener using plain TCP connections
 // without TLS. The listener will bind to the given address:port
 // tuple.
-func NewTCPGrpcListener(addr string, s Service, opts ...grpc.ServerOption) Listener {
-	l, err := net.Listen("tcp", addr)
+func NewTCPGrpcListener(addrGRPC string, s Service, opts ...grpc.ServerOption) Listener {
+	grpcLis, err := net.Listen("tcp", addrGRPC)
 	if err != nil {
 		panic("tcp listener: " + err.Error())
 	}
 
-	mux := cmux.New(l)
+	// Setup listener for http requests; this is run on one port number above the gRPC handler.
+	addrHttp := getHttpAddress(addrGRPC)
+	httpLis, err := net.Listen("tcp", addrHttp)
+	if err != nil {
+		panic("tcp listener: " + err.Error())
+	}
 
 	// grpc API
 	grpcServer := grpc.NewServer(opts...)
@@ -71,8 +91,8 @@ func NewTCPGrpcListener(addr string, s Service, opts ...grpc.ServerOption) Liste
 		Service:    s,
 		grpcServer: grpcServer,
 		restServer: restServer,
-		mux:        mux,
-		lis:        l,
+		grpcLis:    grpcLis,
+		httpLis:    httpLis,
 	}
 	drand.RegisterRandomnessServer(g.grpcServer, g.Service)
 	drand.RegisterBeaconServer(g.grpcServer, g.Service)
@@ -82,18 +102,13 @@ func NewTCPGrpcListener(addr string, s Service, opts ...grpc.ServerOption) Liste
 }
 
 func (g *grpcInsecureListener) Start() {
-	// see https://github.com/grpc/grpc-go/issues/2406
-	// grpcL := g.mux.Match(cmux.HTTP2HeaderField("content-type", "application/grpc"))
-	grpcL := g.mux.MatchWithWriters(cmux.HTTP2MatchHeaderFieldSendSettings("content-type", "application/grpc"))
-	restL := g.mux.Match(cmux.Any())
-
-	go g.grpcServer.Serve(grpcL)
-	go g.restServer.Serve(restL)
-	g.mux.Serve()
+	go g.grpcServer.Serve(g.grpcLis)
+	go g.restServer.Serve(g.httpLis)
 }
 
 func (g *grpcInsecureListener) Stop() {
-	g.lis.Close()
+	g.grpcLis.Close()
+	g.httpLis.Close()
 	g.restServer.Shutdown(context.Background())
 	g.grpcServer.Stop()
 }
